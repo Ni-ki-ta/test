@@ -1,8 +1,8 @@
 from fastapi import APIRouter
 
-from shemas.operator_source_weight import OperatorSourceWeightSchema, OperatorSourceWeightCreateSchema
+from schemas.operator_source_weight import OperatorSourceWeightSchema, OperatorSourceWeightCreateSchema
+from services import OperatorSourceWeightService
 from src.database import DBSession
-from src.models import OperatorSourceWeight
 
 operator_source_weight_router = APIRouter(prefix="/operator_source_weight", tags=["operator_source_weight"])
 
@@ -12,8 +12,4 @@ async def create_weight(
         weight: OperatorSourceWeightCreateSchema,
         db: DBSession
 ):
-    db_weight = OperatorSourceWeight(**weight.dict())
-    db.add(db_weight)
-    await db.commit()
-    await db.refresh(db_weight)
-    return db_weight
+    return await OperatorSourceWeightService.create_weight(db, weight)

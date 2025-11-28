@@ -3,17 +3,16 @@ from typing import Optional
 
 from pydantic import BaseModel
 
-from shemas.operator import OperatorSchema
+from schemas.operator import OperatorSchema
 
 
 class ContactBaseSchema(BaseModel):
-    lead_external_id: str
     source_id: int
     message: Optional[str] = None
 
 
 class ContactCreateSchema(ContactBaseSchema):
-    pass
+    lead_external_id: str
 
 
 class ContactSchema(ContactBaseSchema):
