@@ -1,0 +1,39 @@
+[tool.poetry]
+name = "test"
+version = "0.1.0"
+description = ""
+authors = [ "Ni-ki-ta <nik_kovalenko_2002@bk.ru>" ]
+readme = "README.md"
+package-mode = false
+
+[tool.poetry.dependencies]
+python = "^3.11"
+fastapi = "^0.122.0"
+uvicorn = "^0.38.0"
+sqlalchemy = "^2.0.44"
+pydantic = "^2.12.5"
+alembic = "^1.17.2"
+aiosqlite = "^0.21.0"
+pydantic-settings = "^2.12.0"
+python-dotenv = "^1.2.1"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.4.0"
+pytest-asyncio = "^0.21.0"
+black = "^23.0.0"
+isort = "^5.12.0"
+mypy = "^1.5.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.scripts]
+start = "src.main:app"
+
+[tool.black]
+line-length = 88
+target-version = ['py311']
+
+[tool.isort]
+profile = "black"

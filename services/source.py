@@ -43,3 +43,8 @@ class SourceService:
     async def _get_source_by_name(db: AsyncSession, name: str) -> Optional[Source]:
         result = await db.execute(select(Source).where(Source.name == name))
         return result.scalar_one_or_none()
+
+    @staticmethod
+    async def get_source_by_id(db: AsyncSession, source_id: int) -> Optional[Source]:
+        result = await db.execute(select(Source).where(Source.id == source_id))
+        return result.scalar_one_or_none()

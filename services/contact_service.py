@@ -2,6 +2,10 @@ import random
 from typing import Optional, List
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
+from sqlalchemy.orm import selectinload
+from fastapi import HTTPException, status
+
+from .source import SourceService
 from src.models import Lead, Contact, Operator, OperatorSourceWeight
 from schemas.contact import ContactCreateSchema, ContactResponseSchema, ContactSchema
 
@@ -43,6 +47,7 @@ class DistributionService:
             .where(OperatorSourceWeight.source_id == source_id)
             .join(Operator)
             .where(Operator.is_active == True)
+            .options(selectinload(OperatorSourceWeight.operator))
         )
         weights_query = result.scalars().all()
 
@@ -78,12 +83,29 @@ class ContactService:
     async def create_contact(
             db: AsyncSession, contact_data: ContactCreateSchema
     ) -> ContactResponseSchema:
+        source = await SourceService.get_source_by_id(db, contact_data.source_id)
+        if not source:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Source with id {contact_data.source_id} not found"
+            )
+
         lead = await LeadService.find_or_create_lead(
             db,
             contact_data.lead_external_id
         )
 
         operator = await DistributionService.select_operator(db, contact_data.source_id)
+
+        operator_data = None
+        if operator:
+            operator_data = {
+                'id': operator.id,
+                'name': operator.name,
+                'is_active': operator.is_active,
+                'load_limit': operator.load_limit,
+                'current_load': await DistributionService.get_operator_load(db, operator.id)
+            }
 
         contact = Contact(
             lead_id=lead.id,
@@ -96,9 +118,6 @@ class ContactService:
         db.add(contact)
         await db.commit()
         await db.refresh(contact)
-
-        if operator:
-            await db.refresh(operator)
 
         from schemas.contact import ContactSchema
         from schemas.operator import OperatorSchema
@@ -113,7 +132,9 @@ class ContactService:
             created_at=contact.created_at
         )
 
-        operator_schema = OperatorSchema.from_orm(operator) if operator else None
+        operator_schema = None
+        if operator_data:
+            operator_schema = OperatorSchema(**operator_data)
 
         return ContactResponseSchema(
             contact=contact_schema,
