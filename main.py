@@ -1,4 +1,4 @@
-from src.main import app
+from src.main import app # noqa
 
 if __name__ == "__main__":
     import uvicorn

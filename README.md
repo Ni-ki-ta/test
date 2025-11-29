@@ -38,6 +38,9 @@
 # Установка зависимостей
 poetry install
 
+# Применение миграций базы данных
+poetry run alembic upgrade head
+
 # Запуск приложения
 poetry run uvicorn src.main:app --reload --host 0.0.0.0 --port 8000
 ```

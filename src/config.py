@@ -19,9 +19,5 @@ class Settings(BaseSettings):
     def async_database_url(self):
         return f"sqlite+aiosqlite:///{self.DB_NAME}"
 
-    # @property
-    # def database_url(self):
-    #     return f"sqlite:///./{self.DB_NAME}"
-
 
 settings = Settings()
